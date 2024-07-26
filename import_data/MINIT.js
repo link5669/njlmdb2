@@ -1,87 +1,78 @@
 const mysql = require('mysql2/promise');
 const fs = require('fs');
-const csv = require('csv-parse/sync');
+const csv = require('csv-parser');
 
-// MySQL connection configuration
+// Database connection configuration
 const dbConfig = {
   host: 'localhost',
-  port: 3306,
   user: 'root',
   password: 'password',
   database: 'njlm'
 };
 
-// Function to create the MINIT table if it doesn't exist
-async function createTable(connection) {
-  await connection.execute(`
-    CREATE TABLE IF NOT EXISTS MINIT (
-      MINId INT,
-      UnknownColumn INT,
-      RegIDM INT,
-      Qty INT,
-      Sessions VARCHAR(255),
-      Course VARCHAR(255),
-      DateM DATETIME,
-      Agency INT,
-      PRIMARY KEY (MINId, RegIDM)
-    )
-  `);
-}
+// Table name
+const tableName = 'MINIT';
 
-// Function to insert data into the MINIT table
-async function insertData(connection, data) {
-  const query = `
-    INSERT INTO MINIT 
-    (MINId, UnknownColumn, RegIDM, Qty, Sessions, Course, DateM, Agency) 
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    ON DUPLICATE KEY UPDATE
-    UnknownColumn = VALUES(UnknownColumn),
-    Qty = VALUES(Qty),
-    Sessions = VALUES(Sessions),
-    Course = VALUES(Course),
-    DateM = VALUES(DateM),
-    Agency = VALUES(Agency)
-  `;
+// Create table query
+const createTableQuery = `
+  CREATE TABLE IF NOT EXISTS ${tableName} (
+    MINId VARCHAR(255),
+    InvM VARCHAR(255),
+    RegIDM VARCHAR(255),
+    Qt VARCHAR(255),
+    Sessions VARCHAR(255),
+    Course VARCHAR(255),
+    DateM VARCHAR(255),
+    Agency VARCHAR(255)
+  )
+`;
 
-  for (const row of data) {
-    await connection.execute(query, row);
-  }
-}
+// Insert query
+const insertQuery = `
+  INSERT INTO ${tableName}
+  (MINId, InvM, RegIDM, Qt, Sessions, Course, DateM, Agency)
+  VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+`;
 
-// Main function
-async function main() {
+async function importCSV() {
   let connection;
   try {
-    // Read and parse CSV data
-    const fileContent = fs.readFileSync('./all_tables/MINIT.txt', 'utf-8');
-    const records = csv.parse(fileContent, { 
-      columns: false, 
-      skip_empty_lines: true,
-      delimiter: ',',
-      cast: (value, context) => {
-        if ([0, 1, 2, 3, 7].includes(context.column)) return parseInt(value);
-        if (context.column === 6) return new Date(value);
-        return value;
-      }
+    connection = await mysql.createConnection(dbConfig);
+    await connection.query(createTableQuery);
+
+    await new Promise((resolve, reject) => {
+      fs.createReadStream('./all_tables/MINIT.txt')
+        .pipe(csv({
+          headers: ['MINId', 'InvM', 'RegIDM', 'Qt', 'Sessions', 'Course', 'DateM', 'Agency'],
+          skipLines: 0 // Set this to 1 if your CSV has a header row
+        }))
+        .on('data', async (row) => {
+          try {
+            const values = [
+              row.MINId,
+              row.InvM,
+              row.RegIDM,
+              row.Qt,
+              row.Sessions,
+              row.Course,
+              row.DateM,
+              row.Agency
+            ];
+            await connection.query(insertQuery, values);
+          } catch (error) {
+            console.error('Error inserting row:', error);
+          }
+        })
+        .on('end', resolve)
+        .on('error', reject);
     });
 
-    // Create MySQL connection
-    connection = await mysql.createConnection(dbConfig);
-
-    // Create table
-    await createTable(connection);
-
-    // Insert data
-    await insertData(connection, records);
-
-    console.log('Data imported successfully!');
+    console.log('Data import completed successfully');
   } catch (error) {
-    console.error('Error:', error.message);
+    console.error('Error:', error);
   } finally {
-    if (connection) {
-      await connection.end();
-    }
+    if (connection) await connection.end();
   }
 }
 
-main();
+importCSV();
