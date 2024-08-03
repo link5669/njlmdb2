@@ -7,6 +7,7 @@ import BarIDReport from './components/reports/BarIDReport';
 import CancelSF from './components/reports/CancelSF';
 import ControlCard from './components/forms/ControlCard';
 import EnterOrders from './components/reports/EnterOrders';
+import PrintByInvNo from './components/reports/PrintByInvNo';
 
 const App = () => {
   const [data, setData] = useState([])
@@ -128,14 +129,16 @@ const App = () => {
       <button onClick={() => setSelectedForm(3)}>CancelSF</button>
       <button onClick={() => setSelectedForm(4)}>ControlCard</button>
       <button onClick={() => setSelectedForm(5)}>Enter Orders</button>
+      <button onClick={() => setSelectedForm(6)}>Print by Inv No</button>
       {selectedForm == 1 ?
         <CancelAddForm />
         : selectedForm == 2 ? <BarIDReport />
           : selectedForm == 3 ? <CancelSF />
             : selectedForm == 4 ? <ControlCard />
               : selectedForm == 5 ? <EnterOrders />
-                :
-                <></>}
+                : selectedForm == 6 ? <PrintByInvNo />
+                  :
+                  <></>}
     </div>
   );
 };

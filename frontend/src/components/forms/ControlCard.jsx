@@ -5,7 +5,7 @@ import axios from "axios"
 const ControlCard = () => {
     const [data, setData] = useState([])
     const [date, setDate] = useState("")
-    
+
     return (
         <>
             <p>Enter date</p>
@@ -16,6 +16,7 @@ const ControlCard = () => {
                     setData(e.data)
                 })
             }}>submit</button>
+            
             {data[0] != undefined && (
                 <>
                     <p>Seminar Title</p>
