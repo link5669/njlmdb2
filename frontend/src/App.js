@@ -8,6 +8,12 @@ import CancelSF from './components/reports/CancelSF';
 import ControlCard from './components/forms/ControlCard';
 import EnterOrders from './components/reports/EnterOrders';
 import PrintByInvNo from './components/reports/PrintByInvNo';
+import DailySeminarCounts from './components/reports/DailySeminarCounts';
+import InvoiceMailedNo from './components/reports/InvoiceMailedNo';
+import ManagementSignIn from './components/reports/ManagementSignIn';
+import MiniOneDayConfReport from './components/reports/MiniOneDayConfReport';
+import SignInSheet from './components/reports/SignInSheet';
+import SeminarReport from './components/reports/SeminarReport';
 
 const App = () => {
   const [data, setData] = useState([])
@@ -130,6 +136,12 @@ const App = () => {
       <button onClick={() => setSelectedForm(4)}>ControlCard</button>
       <button onClick={() => setSelectedForm(5)}>Enter Orders</button>
       <button onClick={() => setSelectedForm(6)}>Print by Inv No</button>
+      <button onClick={() => setSelectedForm(7)}>Daily Seminar Counts</button>
+      <button onClick={() => setSelectedForm(8)}>Invoice Mailed No</button>
+      <button onClick={() => setSelectedForm(9)}>Mangement Sign In</button>
+      <button onClick={() => setSelectedForm(10)}>Mini One Day Conf Report</button>
+      <button onClick={() => setSelectedForm(11)}>Sign In Sheet</button>
+      <button onClick={() => setSelectedForm(12)}>Seminar Report</button>
       {selectedForm == 1 ?
         <CancelAddForm />
         : selectedForm == 2 ? <BarIDReport />
@@ -137,8 +149,14 @@ const App = () => {
             : selectedForm == 4 ? <ControlCard />
               : selectedForm == 5 ? <EnterOrders />
                 : selectedForm == 6 ? <PrintByInvNo />
-                  :
-                  <></>}
+                  : selectedForm == 7 ? <DailySeminarCounts />
+                    : selectedForm == 8 ? <InvoiceMailedNo />
+                      : selectedForm == 9 ? <ManagementSignIn />
+                        : selectedForm == 10 ? <MiniOneDayConfReport />
+                          : selectedForm == 11 ? <SignInSheet />
+                            : selectedForm == 12 ? <SeminarReport />
+                              :
+                              <></>}
     </div>
   );
 };

@@ -2,7 +2,6 @@ const mysql = require('mysql2/promise');
 const express = require('express');
 const app = express();
 
-// config for your database
 const config = {
     host: 'localhost',
     user: 'root',
@@ -46,63 +45,123 @@ WHERE (((AddressT.RemoveInv)=0)) LIMIT 50 OFFSET 0;;
 app.get('/balDue2New', async (req, res) => {
     try {
         const connection = await mysql.createConnection(config);
-        const [rows, fields] = await connection.execute(`SELECT MainQ.InvMailed, MainQ.INV, MainQ.InvDate, MainQ.MunID, MainQ.CoMun, MainQ.FirstName, MainQ.LastName, MainQ.Title, MainQ.Address1, MainQ.Address2, MainQ.City, MainQ.State, MainQ.ZipCode, MainQ.WorkPhone, MainQ.Xten, MainQ.FaxNumber, MainQ.EmailAddress, MainQ.SemTitle, MainQ.SemDate, MainQ.Municipality, MainQ.County, MainQ.POBox, MainQ.MunAddr1, MainQ.MunAddr2, MainQ.MunCity, MainQ.MunState, MainQ.MunZip, MainQ.CompanyAll, MainQ.POBAll, MainQ.Addr1All, MainQ.Addr2All, MainQ.CityStateAll, MainQ.PO, MainQ.NumOfReg, MainQ.Cost, MainQ.Total, MainQ.AmtPd1, MainQ.Chk1, MainQ.DatePd1, MainQ.AmtPd2, MainQ.Chk2, MainQ.DatePd2, MainQ.BalDue, MainQ.Ovrpymt, MainQ.RefundDue, MainQ.Comments
-FROM (SELECT 
-    AddressT.InvMailed, 
-    AddressT.INV, 
-    AddressT.InvDate, 
-    AddressT.MunID, 
-    AddressT.CoMun, 
-    AddressT.FirstName, 
-    AddressT.LastName, 
-    AddressT.Title, 
-    AddressT.Address1, 
-    AddressT.Address2, 
-    AddressT.City, 
-    AddressT.State, 
-    AddressT.ZipCode, 
-    AddressT.WorkPhone, 
-    AddressT.Xten, 
-    AddressT.FaxNumber, 
-    AddressT.EmailAddress, 
-    AddressT.SemTitle, 
-    AddressT.SemDate, 
-    MunT.Municipality, 
-    MunT.County, 
-    MunT.POBox, 
-    MunT.MunAddr1, 
-    MunT.MunAddr2, 
-    MunT.MunCity, 
-    MunT.MunState, 
-    MunT.MunZip, 
-    CONCAT(AddressT.CoMun, '', MunT.Municipality, ' ', MunT.County) AS CompanyAll, 
-    MunT.POBox AS POBAll, 
-    CONCAT(AddressT.Address1, '', MunT.MunAddr1, '', MunT.POBox) AS Addr1All, 
-    CONCAT(AddressT.Address2, '', MunT.MunAddr2) AS Addr2All, 
-    CONCAT(AddressT.City, '', MunT.MunCity, ' ', AddressT.State, '', MunT.MunState, ' ', AddressT.ZipCode, '', MunT.MunZip) AS CityStateAll, 
-    AddressT.PO, 
-    AddressT.NumOfReg, 
-    AddressT.Cost, 
-    AddressT.NumOfReg * AddressT.Cost AS Total, 
-    AddressT.AmtPd1, 
-    AddressT.Chk1, 
-    AddressT.DatePd1, 
-    AddressT.AmtPd2, 
-    AddressT.Chk2, 
-    AddressT.DatePd2, 
-    (AddressT.NumOfReg * AddressT.Cost) - AddressT.AmtPd1 - AddressT.AmtPd2 + AddressT.RefundDue AS BalDue, 
-    AddressT.Ovrpymt, 
-    AddressT.RefundDue, 
-    AddressT.Comments
-FROM 
-    MunT 
-RIGHT JOIN 
-    AddressT ON MunT.MunID = AddressT.MunID) AS MainQ
-WHERE (((MainQ.BalDue)>=1)) LIMIT 50 OFFSET 0;;
-  `);
+        if (req.query.inv) {
+            const [rows, fields] = await connection.execute(`
+                SELECT MainQ.InvMailed, MainQ.INV, MainQ.InvDate, MainQ.MunID, MainQ.CoMun, MainQ.FirstName, MainQ.LastName, MainQ.Title, MainQ.Address1, MainQ.Address2, MainQ.City, MainQ.State, MainQ.ZipCode, MainQ.WorkPhone, MainQ.Xten, MainQ.FaxNumber, MainQ.EmailAddress, MainQ.SemTitle, MainQ.SemDate, MainQ.Municipality, MainQ.County, MainQ.POBox, MainQ.MunAddr1, MainQ.MunAddr2, MainQ.MunCity, MainQ.MunState, MainQ.MunZip, MainQ.CompanyAll, MainQ.POBAll, MainQ.Addr1All, MainQ.Addr2All, MainQ.CityStateAll, MainQ.PO, MainQ.NumOfReg, MainQ.Cost, MainQ.Total, MainQ.AmtPd1, MainQ.Chk1, MainQ.DatePd1, MainQ.AmtPd2, MainQ.Chk2, MainQ.DatePd2, MainQ.BalDue, MainQ.Ovrpymt, MainQ.RefundDue, MainQ.Comments
+                FROM (SELECT 
+                    AddressT.InvMailed, 
+                    AddressT.INV, 
+                    AddressT.InvDate, 
+                    AddressT.MunID, 
+                    AddressT.CoMun, 
+                    AddressT.FirstName, 
+                    AddressT.LastName, 
+                    AddressT.Title, 
+                    AddressT.Address1, 
+                    AddressT.Address2, 
+                    AddressT.City, 
+                    AddressT.State, 
+                    AddressT.ZipCode, 
+                    AddressT.WorkPhone, 
+                    AddressT.Xten, 
+                    AddressT.FaxNumber, 
+                    AddressT.EmailAddress, 
+                    AddressT.SemTitle, 
+                    AddressT.SemDate, 
+                    MunT.Municipality, 
+                    MunT.County, 
+                    MunT.POBox, 
+                    MunT.MunAddr1, 
+                    MunT.MunAddr2, 
+                    MunT.MunCity, 
+                    MunT.MunState, 
+                    MunT.MunZip, 
+                    CONCAT(AddressT.CoMun, '', MunT.Municipality, ' ', MunT.County) AS CompanyAll, 
+                    MunT.POBox AS POBAll, 
+                    CONCAT(AddressT.Address1, '', MunT.MunAddr1, '', MunT.POBox) AS Addr1All, 
+                    CONCAT(AddressT.Address2, '', MunT.MunAddr2) AS Addr2All, 
+                    CONCAT(AddressT.City, '', MunT.MunCity, ' ', AddressT.State, '', MunT.MunState, ' ', AddressT.ZipCode, '', MunT.MunZip) AS CityStateAll, 
+                    AddressT.PO, 
+                    AddressT.NumOfReg, 
+                    AddressT.Cost, 
+                    AddressT.NumOfReg * AddressT.Cost AS Total, 
+                    AddressT.AmtPd1, 
+                    AddressT.Chk1, 
+                    AddressT.DatePd1, 
+                    AddressT.AmtPd2, 
+                    AddressT.Chk2, 
+                    AddressT.DatePd2, 
+                    (AddressT.NumOfReg * AddressT.Cost) - AddressT.AmtPd1 - AddressT.AmtPd2 + AddressT.RefundDue AS BalDue, 
+                    AddressT.Ovrpymt, 
+                    AddressT.RefundDue, 
+                    AddressT.Comments
+                FROM 
+                    MunT 
+                RIGHT JOIN 
+                    AddressT ON MunT.MunID = AddressT.MunID) AS MainQ
+                WHERE (((MainQ.BalDue)>=1)) AND AddressT.INV = ${req.query.inv};
+            `);
+            await connection.end();
+            res.json(rows);
+        } else {
+            const [rows, fields] = await connection.execute(`SELECT MainQ.InvMailed, MainQ.INV, MainQ.InvDate, MainQ.MunID, MainQ.CoMun, MainQ.FirstName, MainQ.LastName, MainQ.Title, MainQ.Address1, MainQ.Address2, MainQ.City, MainQ.State, MainQ.ZipCode, MainQ.WorkPhone, MainQ.Xten, MainQ.FaxNumber, MainQ.EmailAddress, MainQ.SemTitle, MainQ.SemDate, MainQ.Municipality, MainQ.County, MainQ.POBox, MainQ.MunAddr1, MainQ.MunAddr2, MainQ.MunCity, MainQ.MunState, MainQ.MunZip, MainQ.CompanyAll, MainQ.POBAll, MainQ.Addr1All, MainQ.Addr2All, MainQ.CityStateAll, MainQ.PO, MainQ.NumOfReg, MainQ.Cost, MainQ.Total, MainQ.AmtPd1, MainQ.Chk1, MainQ.DatePd1, MainQ.AmtPd2, MainQ.Chk2, MainQ.DatePd2, MainQ.BalDue, MainQ.Ovrpymt, MainQ.RefundDue, MainQ.Comments
+                FROM (SELECT 
+                    AddressT.InvMailed, 
+                    AddressT.INV, 
+                    AddressT.InvDate, 
+                    AddressT.MunID, 
+                    AddressT.CoMun, 
+                    AddressT.FirstName, 
+                    AddressT.LastName, 
+                    AddressT.Title, 
+                    AddressT.Address1, 
+                    AddressT.Address2, 
+                    AddressT.City, 
+                    AddressT.State, 
+                    AddressT.ZipCode, 
+                    AddressT.WorkPhone, 
+                    AddressT.Xten, 
+                    AddressT.FaxNumber, 
+                    AddressT.EmailAddress, 
+                    AddressT.SemTitle, 
+                    AddressT.SemDate, 
+                    MunT.Municipality, 
+                    MunT.County, 
+                    MunT.POBox, 
+                    MunT.MunAddr1, 
+                    MunT.MunAddr2, 
+                    MunT.MunCity, 
+                    MunT.MunState, 
+                    MunT.MunZip, 
+                    CONCAT(AddressT.CoMun, '', MunT.Municipality, ' ', MunT.County) AS CompanyAll, 
+                    MunT.POBox AS POBAll, 
+                    CONCAT(AddressT.Address1, '', MunT.MunAddr1, '', MunT.POBox) AS Addr1All, 
+                    CONCAT(AddressT.Address2, '', MunT.MunAddr2) AS Addr2All, 
+                    CONCAT(AddressT.City, '', MunT.MunCity, ' ', AddressT.State, '', MunT.MunState, ' ', AddressT.ZipCode, '', MunT.MunZip) AS CityStateAll, 
+                    AddressT.PO, 
+                    AddressT.NumOfReg, 
+                    AddressT.Cost, 
+                    AddressT.NumOfReg * AddressT.Cost AS Total, 
+                    AddressT.AmtPd1, 
+                    AddressT.Chk1, 
+                    AddressT.DatePd1, 
+                    AddressT.AmtPd2, 
+                    AddressT.Chk2, 
+                    AddressT.DatePd2, 
+                    (AddressT.NumOfReg * AddressT.Cost) - AddressT.AmtPd1 - AddressT.AmtPd2 + AddressT.RefundDue AS BalDue, 
+                    AddressT.Ovrpymt, 
+                    AddressT.RefundDue, 
+                    AddressT.Comments
+                FROM 
+                    MunT 
+                RIGHT JOIN 
+                    AddressT ON MunT.MunID = AddressT.MunID) AS MainQ
+                WHERE (((MainQ.BalDue)>=1)) ;
+                  `);
 
-        await connection.end();
-        res.json(rows);
+            await connection.end();
+            res.json(rows);
+        }
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'An error occurred' });
@@ -127,13 +186,24 @@ FROM RegT LIMIT 50 OFFSET 0;;
 app.get('/invMailedNo', async (req, res) => {
     try {
         const connection = await mysql.createConnection(config);
-        const [rows, fields] = await connection.execute(`SELECT AddressT.InvMailed, AddressT.PersonalCheck, AddressT.INV, AddressT.InvDate, AddressT.MunID, AddressT.CoMun, AddressT.FirstName, AddressT.LastName, AddressT.Title, AddressT.Address1, AddressT.Address2, AddressT.City, AddressT.State, AddressT.ZipCode, AddressT.WorkPhone, AddressT.Xten, AddressT.FaxNumber, AddressT.EmailAddress, AddressT.SemTitle, AddressT.SemDate, MunT.Municipality, MunT.County, MunT.POBox, MunT.MunAddr1, MunT.MunAddr2, MunT.MunCity, MunT.MunState, MunT.MunZip, CoMun & "" & Municipality & " " & County AS CompanyAll, MunT.POBox AS POBAll, Address1 & "" & MunAddr1 AS Addr1All, Address2 & "" & MunAddr2 AS Addr2All, City & "" & MunCity & " " & State & "" & MunState & " " & ZipCode & "" & MunZip AS CityStateAll, AddressT.PO, AddressT.NumofReg, AddressT.Cost, NumofReg*Cost AS Total, AddressT.AmtPd1, AddressT.Chk1, AddressT.DatePd1, AddressT.AmtPd2, AddressT.Chk2, AddressT.DatePd2, Total-AmtPd1-AmtPd2+RefundDue AS BalDue, If(AmtPd1+AmtPd2>Total,Total-AmtPd1+AmtPd2,0) AS Ovrpymt, AddressT.RefundDue, AddressT.Comments, AddressT.state, AddressT.city, AddressT.zipcode
+        if (req.query.inv) {
+            const [rows, fields] = await connection.execute(`SELECT AddressT.InvMailed, AddressT.PersonalCheck, AddressT.INV, AddressT.InvDate, AddressT.MunID, AddressT.CoMun, AddressT.FirstName, AddressT.LastName, AddressT.Title, AddressT.Address1, AddressT.Address2, AddressT.City, AddressT.State, AddressT.ZipCode, AddressT.WorkPhone, AddressT.Xten, AddressT.FaxNumber, AddressT.EmailAddress, AddressT.SemTitle, AddressT.SemDate, MunT.Municipality, MunT.County, MunT.POBox, MunT.MunAddr1, MunT.MunAddr2, MunT.MunCity, MunT.MunState, MunT.MunZip, CoMun & "" & Municipality & " " & County AS CompanyAll, MunT.POBox AS POBAll, Address1 & "" & MunAddr1 AS Addr1All, Address2 & "" & MunAddr2 AS Addr2All, City & "" & MunCity & " " & State & "" & MunState & " " & ZipCode & "" & MunZip AS CityStateAll, AddressT.PO, AddressT.NumofReg, AddressT.Cost, NumofReg*Cost AS Total, AddressT.AmtPd1, AddressT.Chk1, AddressT.DatePd1, AddressT.AmtPd2, AddressT.Chk2, AddressT.DatePd2, Total-AmtPd1-AmtPd2+RefundDue AS BalDue, If(AmtPd1+AmtPd2>Total,Total-AmtPd1+AmtPd2,0) AS Ovrpymt, AddressT.RefundDue, AddressT.Comments, AddressT.state, AddressT.city, AddressT.zipcode
 FROM MunT RIGHT JOIN AddressT ON MunT.MunID = AddressT.MunID
-WHERE (((AddressT.InvMailed)=0)) LIMIT 50 OFFSET 0;;
+WHERE (((AddressT.InvMailed)=0))  AND AddressT.INV = ${req.query.inv};
   `);
+            await connection.end();
+            res.json(rows);
+        } else {
+            const [rows, fields] = await connection.execute(`SELECT AddressT.InvMailed, AddressT.PersonalCheck, AddressT.INV, AddressT.InvDate, AddressT.MunID, AddressT.CoMun, AddressT.FirstName, AddressT.LastName, AddressT.Title, AddressT.Address1, AddressT.Address2, AddressT.City, AddressT.State, AddressT.ZipCode, AddressT.WorkPhone, AddressT.Xten, AddressT.FaxNumber, AddressT.EmailAddress, AddressT.SemTitle, AddressT.SemDate, MunT.Municipality, MunT.County, MunT.POBox, MunT.MunAddr1, MunT.MunAddr2, MunT.MunCity, MunT.MunState, MunT.MunZip, CoMun & "" & Municipality & " " & County AS CompanyAll, MunT.POBox AS POBAll, Address1 & "" & MunAddr1 AS Addr1All, Address2 & "" & MunAddr2 AS Addr2All, City & "" & MunCity & " " & State & "" & MunState & " " & ZipCode & "" & MunZip AS CityStateAll, AddressT.PO, AddressT.NumofReg, AddressT.Cost, NumofReg*Cost AS Total, AddressT.AmtPd1, AddressT.Chk1, AddressT.DatePd1, AddressT.AmtPd2, AddressT.Chk2, AddressT.DatePd2, Total-AmtPd1-AmtPd2+RefundDue AS BalDue, If(AmtPd1+AmtPd2>Total,Total-AmtPd1+AmtPd2,0) AS Ovrpymt, AddressT.RefundDue, AddressT.Comments, AddressT.state, AddressT.city, AddressT.zipcode
+FROM MunT RIGHT JOIN AddressT ON MunT.MunID = AddressT.MunID
+WHERE (((AddressT.InvMailed)=0));
+  `);
+            await connection.end();
+            res.json(rows);
+        }
 
-        await connection.end();
-        res.json(rows);
+
+
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'An error occurred' });
@@ -175,57 +245,70 @@ app.get('/mainQ', async (req, res) => {
     try {
         const connection = await mysql.createConnection(config);
         const [rows, fields] = await connection.execute(`SELECT 
-    AddressT.InvMailed, 
-    AddressT.INV, 
-    AddressT.InvDate, 
-    AddressT.MunID, 
-    AddressT.CoMun, 
-    AddressT.FirstName, 
-    AddressT.LastName, 
-    AddressT.Title, 
-    AddressT.Address1, 
-    AddressT.Address2, 
-    AddressT.City, 
-    AddressT.State, 
-    AddressT.ZipCode, 
-    AddressT.WorkPhone, 
-    AddressT.Xten, 
-    AddressT.FaxNumber, 
-    AddressT.EmailAddress, 
-    AddressT.SemTitle, 
-    AddressT.SemDate, 
-    MunT.Municipality, 
-    MunT.County, 
-    MunT.POBox, 
-    MunT.MunAddr1, 
-    MunT.MunAddr2, 
-    MunT.MunCity, 
-    MunT.MunState, 
-    MunT.MunZip, 
-    CONCAT(AddressT.CoMun, '', MunT.Municipality, ' ', MunT.County) AS CompanyAll, 
-    MunT.POBox AS POBAll, 
-    CONCAT(AddressT.Address1, '', MunT.MunAddr1, '', MunT.POBox) AS Addr1All, 
-    CONCAT(AddressT.Address2, '', MunT.MunAddr2) AS Addr2All, 
-    CONCAT(AddressT.City, '', MunT.MunCity, ' ', AddressT.State, '', MunT.MunState, ' ', AddressT.ZipCode, '', MunT.MunZip) AS \`City/StateAll\`, 
-    AddressT.PO, 
-    AddressT.NumOfReg, 
-    AddressT.Cost, 
-    AddressT.NumOfReg * AddressT.Cost AS Total, 
-    AddressT.AmtPd1, 
-    AddressT.Chk1, 
-    AddressT.DatePd1, 
-    AddressT.AmtPd2, 
-    AddressT.Chk2, 
-    AddressT.DatePd2, 
-    (AddressT.NumOfReg * AddressT.Cost) - AddressT.AmtPd1 - AddressT.AmtPd2 + AddressT.RefundDue AS \`Bal Due\`, 
-    AddressT.Ovrpymt, 
-    AddressT.RefundDue, 
+    AddressT.InvMailed,
+    AddressT.INV,
+    AddressT.InvDate,
+    AddressT.MunID,
+    AddressT.CoMun,
+    AddressT.FirstName,
+    AddressT.LastName,
+    AddressT.Title,
+    AddressT.Address1,
+    AddressT.Address2,
+    AddressT.City,
+    AddressT.State,
+    AddressT.ZipCode,
+    AddressT.WorkPhone,
+    AddressT.Xten,
+    AddressT.FaxNumber,
+    AddressT.EmailAddress,
+    AddressT.SemTitle,
+    AddressT.SemDate,
+    MunT.Municipality,
+    MunT.County,
+    MunT.POBox,
+    MunT.MunAddr1,
+    MunT.MunAddr2,
+    MunT.MunCity,
+    MunT.MunState,
+    MunT.MunZip,
+    CONCAT(IFNULL(CoMun,''), '', IFNULL(Municipality,''), ' ', County) AS CompanyAll,
+    MunT.POBox AS POBAll,
+    CONCAT(IFNULL(AddressT.Address1,''),
+            '',
+            IFNULL(MunT.MunAddr1,''),
+            '',
+            IFNULL(MunT.POBox,'')) AS Addr1All,
+    CONCAT(IFNULL(AddressT.Address2,''), '', IFNULL(MunT.MunAddr2,'')) AS Addr2All,
+    CONCAT(IFNULL(AddressT.City,''),
+            '',
+            IFNULL(MunT.MunCity,''),
+            ' ',
+            IFNULL(AddressT.State,''),
+            '',
+            IFNULL(MunT.MunState,''),
+            ' ',
+            IFNULL(AddressT.ZipCode,''),
+            '',
+            IFNULL(MunT.MunZip,'')) AS \`City/StateAll\`,
+    AddressT.PO,
+    AddressT.NumOfReg,
+    AddressT.Cost,
+    AddressT.NumOfReg * AddressT.Cost AS Total,
+    AddressT.AmtPd1,
+    AddressT.Chk1,
+    AddressT.DatePd1,
+    AddressT.AmtPd2,
+    AddressT.Chk2,
+    AddressT.DatePd2,
+    (AddressT.NumOfReg * AddressT.Cost) - AddressT.AmtPd1 - AddressT.AmtPd2 + AddressT.RefundDue AS \`Bal Due\`,
+    AddressT.Ovrpymt,
+    AddressT.RefundDue,
     AddressT.Comments
-FROM 
-    MunT 
-RIGHT JOIN 
+FROM
+    MunT
+        RIGHT JOIN
     AddressT ON MunT.MunID = AddressT.MunID
-    LIMIT 50 OFFSET 0;
 `);
 
         await connection.end();
@@ -369,11 +452,11 @@ app.get('/miniReport', async (req, res) => {
         const [rows, fields] = await connection.execute(`SELECT RegT.INV, MainQ.CompanyAll, MainQ.CoMun, RegT.RegID, RegT.FirstN, RegT.LastN, RegT.Title, RegT.BarID, RegT.Mini, RegT.Cancelled, RegT.CancellationComments, MINIT.Qty, MINIT.Sessions, MINIT.Course, MINIT.RegIDM, MINIT.DateM 
 FROM (
     SELECT AddressT.InvMailed, AddressT.INV, AddressT.InvDate, AddressT.MunID, AddressT.CoMun, AddressT.FirstName, AddressT.LastName, AddressT.Title, AddressT.Address1, AddressT.Address2, AddressT.City, AddressT.State, AddressT.ZipCode, AddressT.WorkPhone, AddressT.Xten, AddressT.FaxNumber, AddressT.EmailAddress, AddressT.SemTitle, AddressT.SemDate, MunT.Municipality, MunT.County, MunT.POBox, MunT.MunAddr1, MunT.MunAddr2, MunT.MunCity, MunT.MunState, MunT.MunZip, 
-           CONCAT(AddressT.CoMun, '', MunT.Municipality, ' ', MunT.County) AS CompanyAll, 
+           CONCAT(IFNULL(AddressT.CoMun,''), '', IFNULL(MunT.Municipality,''), ' ', IFNULL(MunT.County,'')) AS CompanyAll, 
            MunT.POBox AS POBAll, 
-           CONCAT(AddressT.Address1, '', MunT.MunAddr1, '', MunT.POBox) AS Addr1All, 
-           CONCAT(AddressT.Address2, '', MunT.MunAddr2) AS Addr2All, 
-           CONCAT(AddressT.City, '', MunT.MunCity, ' ', AddressT.State, '', MunT.MunState, ' ', AddressT.ZipCode, '', MunT.MunZip) AS \`City / StateAll\`, 
+           CONCAT(IFNULL(AddressT.Address1,''), '', IFNULL(MunT.MunAddr1,''), '', IFNULL(MunT.POBox,'')) AS Addr1All, 
+           CONCAT(IFNULL(AddressT.Address2,''), '', IFNULL(MunT.MunAddr2,'')) AS Addr2All, 
+           CONCAT(IFNULL(AddressT.City,''), '', IFNULL(MunT.MunCity,''), ' ', IFNULL(AddressT.State,''), '', IFNULL(MunT.MunState,''), ' ', IFNULL(AddressT.ZipCode,''), '', IFNULL(MunT.MunZip,'')) AS \`City / StateAll\`, 
            AddressT.PO, AddressT.NumOfReg, AddressT.Cost, AddressT.NumOfReg * AddressT.Cost AS Total, 
            AddressT.AmtPd1, AddressT.Chk1, AddressT.DatePd1, AddressT.AmtPd2, AddressT.Chk2, AddressT.DatePd2, 
            (AddressT.NumOfReg * AddressT.Cost) - AddressT.AmtPd1 - AddressT.AmtPd2 + AddressT.RefundDue AS \`Bal Due\`, 
@@ -382,7 +465,7 @@ FROM (
 ) AS MainQ 
 INNER JOIN RegT ON MainQ.INV = RegT.INV
 LEFT JOIN MINIT ON RegT.RegID = MINIT.RegIDM 
-WHERE RegT.Mini = 1 AND MINIT.DateM = "${req.query.date} 0:00:00" LIMIT 50 OFFSET 0;
+WHERE RegT.Mini = 1 AND MINIT.DateM = "${req.query.date} 0:00:00";
   `);
         await connection.end();
         res.json(rows);
@@ -760,6 +843,39 @@ FROM RegT LEFT JOIN MINIT ON RegT.RegID = MINIT.RegIDM LIMIT 50 OFFSET 0;
     }
 });
 
+app.get('/reportQuery', async (req, res) => {
+    try {
+        const connection = await mysql.createConnection(config);
+        const [rows, fields] = await connection.execute(`SELECT 
+    AddressT.SemTitle,
+     AddressT.SemDate,
+    AddressT.Cost,
+    SUM(AddressT.NumofReg) AS NumOfReg,
+    SUM(AddressT.NumofReg * AddressT.Cost) AS Total,
+    SUM(AddressT.AmtPd1) AS AmtPd1,
+    SUM((AddressT.NumofReg * AddressT.Cost) - AddressT.AmtPd1 - AddressT.AmtPd2) AS BalDue,
+    SUM(AddressT.OvrPymt) AS Ovrpymt
+FROM 
+    MunT 
+    RIGHT JOIN AddressT ON MunT.MunID = AddressT.MunID
+WHERE 
+    AddressT.SemDate >= '2024-01-01 00:00:00' 
+    AND AddressT.SemDate <= '2024-07-01 00:00:00'
+GROUP BY 
+    AddressT.SemTitle,
+     AddressT.SemDate,
+    AddressT.Cost
+ORDER BY
+    AddressT.SemDate
+`);
+        await connection.end();
+        res.json(rows);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'An error occurred' });
+    }
+});
+
 app.get('/signInSheet', async (req, res) => {
     try {
         const connection = await mysql.createConnection(config);
@@ -790,7 +906,7 @@ FROM
         AddressT.PO, 
         AddressT.Chk1, 
         AddressT.Chk2,
-        CONCAT(AddressT.CoMun, '', MunT.Municipality, ' ', MunT.County) AS CompanyAll
+        CONCAT(IFNULL(AddressT.CoMun,''), '', IFNULL(MunT.Municipality,''), ' ', IFNULL(MunT.County,'')) AS CompanyAll
     FROM 
         AddressT
     LEFT JOIN 
@@ -801,7 +917,7 @@ INNER JOIN
 INNER JOIN 
     AddressT ON AddressT.INV = RegT.INV
 WHERE 
-    MainQ.SemDate = "${req.query.date} 0:00:00"
+    MainQ.SemDate = '${req.query.date} 0:00:00'
     AND RegT.Cancelled = 0;
   `);
 
